@@ -20,8 +20,8 @@ It allows registering clients, calculating appointment costs, generating reports
 
 ## Run the project
 ```bash
-javac Consultorio.java Cliente.java
-java Consultorio
+javac Consultory.java Client.java
+java Consultory
 ```
 
 ### Python
