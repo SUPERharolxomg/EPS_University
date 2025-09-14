@@ -1,44 +1,54 @@
 from client import Client
+import storage
+import urgency_stack
+import agenda_queue
+from datetime import datetime
+
+def register_client():
+    client_id = input("ID: ")
+    name = input("Name: ")
+    phone = input("Phone: ")
+    client_type = input("Client type (EPS/Particular/Prepaid): ")
+    service_type = input("Service type (Extraction/Cleaning/Diagnosis/Filling): ")
+    quantity = int(input("Quantity: "))
+    priority = input("Priority (Urgent/Normal): ")
+    appointment_date = input("Appointment date (yyyy-MM-dd): ")
+    service_value = float(input("Service value: "))
+
+    return Client(client_id, name, phone, client_type, service_type,
+                  quantity, priority, appointment_date, service_value)
 
 def main():
-    clientes = []
-    n = int(input("Ingrese número de clientes: "))
-
-    for i in range(n):
-        print(f"\nCliente {i + 1}")
-        cedula = input("Cédula: ")
-        nombre = input("Nombre: ")
-        telefono = input("Teléfono: ")
-        tipo_cliente = input("Tipo de Cliente (Particular/EPS/Prepagada): ")
-        tipo_atencion = input("Tipo de Atención (Limpieza/Calzas/Extracción/Diagnóstico): ")
-        cantidad = int(input("Cantidad: "))
-        prioridad = input("Prioridad (Normal/Urgente): ")
-        fecha_cita = input("Fecha de la Cita: ")
-
-        clientes.append(Client(cedula, nombre, telefono, tipo_cliente,
-                                tipo_atencion, cantidad, prioridad, fecha_cita))
-
-    print("\n--- Reportes ---")
-    print("Total Clientes:", len(clientes))
-
-    ingresos_totales = sum(c.valor_total for c in clientes)
-    print("Ingresos Totales:", ingresos_totales)
-
-    extracciones = sum(1 for c in clientes if c.tipo_atencion.lower() == "extracción")
-    print("Número de clientes para extracción:", extracciones)
-
-    clientes.sort(key=lambda c: c.valor_total, reverse=True)
-    print("\nLista ordenada (de mayor a menor valor):")
-    for c in clientes:
-        print(c)
-
-    buscar = input("\nBuscar cliente por cédula: ")
-    encontrado = next((c for c in clientes if c.cedula == buscar), None)
-
-    if encontrado:
-        print("Cliente encontrado:", encontrado)
+    clients = storage.load_clients()
+    if clients:
+        print("Clients loaded from CSV.")
     else:
-        print("Cliente no encontrado.")
+        print("No clients registered, starting fresh.")
+
+    while True:
+        print("\n===== CLINIC MENU =====")
+        print("1. Register new client")
+        print("2. Show urgency stack")
+        print("3. Show and attend agenda queue")
+        print("4. Save and exit")
+        option = input("Choose an option: ")
+
+        if option == "1":
+            new_client = register_client()
+            clients.append(new_client)
+            print("Client registered and added.")
+        elif option == "2":
+            stack = urgency_stack.generate_stack(clients)
+            urgency_stack.show_stack(stack)
+        elif option == "3":
+            queue = agenda_queue.generate_queue(clients)
+            agenda_queue.attend_queue(queue)
+        elif option == "4":
+            storage.save_clients(clients)
+            print("Data saved to clients.csv. Goodbye!")
+            break
+        else:
+            print("Invalid option.")
 
 if __name__ == "__main__":
     main()

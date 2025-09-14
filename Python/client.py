@@ -1,29 +1,28 @@
-class Client:
-    def __init__(self, cedula, nombre, telefono, tipo_cliente,
-                 tipo_atencion, cantidad, prioridad, fecha_cita):
-        self.cedula = cedula
-        self.nombre = nombre
-        self.telefono = telefono
-        self.tipo_cliente = tipo_cliente
-        self.tipo_atencion = tipo_atencion
-        self.cantidad = cantidad
-        self.prioridad = prioridad
-        self.fecha_cita = fecha_cita
-        self.valor_total = self.calcular_valor()
+from datetime import datetime
 
-    def calcular_valor(self):
-        base, unitario = 0, 0
-        if self.tipo_atencion.lower() == "limpieza":
-            base, self.cantidad = 30000, 1
-        elif self.tipo_atencion.lower() == "diagnóstico":
-            base, self.cantidad = 20000, 1
-        elif self.tipo_atencion.lower() == "calzas":
-            base, unitario = 10000, 50000
-        elif self.tipo_atencion.lower() == "extracción":
-            base, unitario = 15000, 80000
-        return base + (unitario * self.cantidad)
+class Client:
+    def __init__(self, client_id, name, phone, client_type, service_type,
+                 quantity, priority, appointment_date, service_value):
+        self.client_id = client_id
+        self.name = name
+        self.phone = phone
+        self.client_type = client_type
+        self.service_type = service_type
+        self.quantity = quantity
+        self.priority = priority
+        self.appointment_date = datetime.strptime(appointment_date, "%Y-%m-%d").date()
+        self.service_value = float(service_value)
+
+    def to_csv(self):
+        return [self.client_id, self.name, self.phone, self.client_type,
+                self.service_type, str(self.quantity), self.priority,
+                str(self.appointment_date), str(self.service_value)]
+
+    @staticmethod
+    def from_csv(row):
+        return Client(row[0], row[1], row[2], row[3], row[4],
+                      int(row[5]), row[6], row[7], float(row[8]))
 
     def __str__(self):
-        return (f"Cliente(cedula={self.cedula}, nombre={self.nombre}, "
-                f"tipoAtencion={self.tipo_atencion}, cantidad={self.cantidad}, "
-                f"valorTotal={self.valor_total})")
+        return (f"{self.client_id} - {self.name} - {self.service_type} "
+                f"- {self.priority} - {self.appointment_date}")

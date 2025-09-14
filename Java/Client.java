@@ -1,59 +1,44 @@
-public class Client {
-    String cedula;
-    String nombre;
-    String telefono;
-    String tipoCliente;  // Particular, EPS, Prepagada
-    String tipoAtencion; // Limpieza, Calzas, Extracción, Diagnóstico
-    int cantidad;
-    String prioridad;    // Normal, Urgente
-    String fechaCita;
-    double valorTotal;
+import java.time.LocalDate;
 
-    public Client(String cedula, String nombre, String telefono, String tipoCliente,
-                   String tipoAtencion, int cantidad, String prioridad, String fechaCita) {
-        this.cedula = cedula;
-        this.nombre = nombre;
-        this.telefono = telefono;
-        this.tipoCliente = tipoCliente;
-        this.tipoAtencion = tipoAtencion;
-        this.cantidad = cantidad;
-        this.prioridad = prioridad;
-        this.fechaCita = fechaCita;
-        this.valorTotal = calcularValor();
+public class Client {
+    private String id;
+    private String name;
+    private String phone;
+    private String clientType;
+    private String serviceType;
+    private int quantity;
+    private String priority;
+    private LocalDate appointmentDate;
+    private double serviceValue;
+
+    public Client(String id, String name, String phone,
+                  String clientType, String serviceType, int quantity,
+                  String priority, LocalDate appointmentDate, double serviceValue) {
+        this.id = id;
+        this.name = name;
+        this.phone = phone;
+        this.clientType = clientType;
+        this.serviceType = serviceType;
+        this.quantity = quantity;
+        this.priority = priority;
+        this.appointmentDate = appointmentDate;
+        this.serviceValue = serviceValue;
     }
 
-    private double calcularValor() {
-        double base = 0, unitario = 0;
+    public String getId() { return id; }
+    public String getServiceType() { return serviceType; }
+    public String getPriority() { return priority; }
+    public LocalDate getAppointmentDate() { return appointmentDate; }
+    public double getServiceValue() { return serviceValue; }
 
-        switch (tipoAtencion.toLowerCase()) {
-            case "limpieza":
-                base = 30000;
-                cantidad = 1; // obligatorio
-                break;
-            case "diagnóstico":
-                base = 20000;
-                cantidad = 1; // obligatorio
-                break;
-            case "calzas":
-                base = 10000;
-                unitario = 50000;
-                break;
-            case "extracción":
-                base = 15000;
-                unitario = 80000;
-                break;
-        }
-        return base + (unitario * cantidad);
+    public String toCSV() {
+        return id + "," + name + "," + phone + "," + clientType + "," + serviceType + "," +
+               quantity + "," + priority + "," + appointmentDate + "," + serviceValue;
     }
 
     @Override
     public String toString() {
-        return "Cliente{" +
-                "cedula='" + cedula + '\'' +
-                ", nombre='" + nombre + '\'' +
-                ", tipoAtencion='" + tipoAtencion + '\'' +
-                ", cantidad=" + cantidad +
-                ", valorTotal=" + valorTotal +
-                '}';
+        return id + " - " + name + " - " + serviceType +
+               " - " + priority + " - " + appointmentDate;
     }
 }

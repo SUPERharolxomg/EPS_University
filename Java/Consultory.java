@@ -1,64 +1,75 @@
 import java.util.*;
+import java.time.LocalDate;
+import java.util.Scanner;
 
-public class Consultory {
+public class Clinic {
     public static void main(String[] args) {
+        List<Client> clients = Storage.loadClients();
         Scanner sc = new Scanner(System.in);
-        List<Client> clients = new ArrayList<>();
 
-        System.out.print("Ingrese número de clientes: ");
-        int n = sc.nextInt();
-        sc.nextLine();
-
-        for (int i = 0; i < n; i++) {
-            System.out.println("\nCliente " + (i + 1));
-            System.out.print("Cédula: ");
-            String cedula = sc.nextLine();
-            System.out.print("Nombre: ");
-            String nombre = sc.nextLine();
-            System.out.print("Teléfono: ");
-            String telefono = sc.nextLine();
-            System.out.print("Tipo de Cliente (Particular/EPS/Prepagada): ");
-            String tipoCliente = sc.nextLine();
-            System.out.print("Tipo de Atención (Limpieza/Calzas/Extracción/Diagnóstico): ");
-            String tipoAtencion = sc.nextLine();
-            System.out.print("Cantidad: ");
-            int cantidad = sc.nextInt();
-            sc.nextLine();
-            System.out.print("Prioridad (Normal/Urgente): ");
-            String prioridad = sc.nextLine();
-            System.out.print("Fecha de la Cita: ");
-            String fechaCita = sc.nextLine();
-
-            clients.add(new Client(cedula, nombre, telefono, tipoCliente,
-                                     tipoAtencion, cantidad, prioridad, fechaCita));
+        if (clients.isEmpty()) {
+            System.out.println("No clients registered yet, starting fresh.");
+        } else {
+            System.out.println("Clients loaded from CSV.");
         }
 
-        // Reportes
-        System.out.println("\n--- Reportes ---");
-        System.out.println("Total Clientes: " + clients.size());
+        boolean running = true;
+        while (running) {
+            System.out.println("\n===== CLINIC MENU =====");
+            System.out.println("1. Register new client");
+            System.out.println("2. Show urgency stack");
+            System.out.println("3. Show and attend agenda queue");
+            System.out.println("4. Save and exit");
+            System.out.print("Choose an option: ");
+            String option = sc.nextLine();
 
-        double ingresosTotales = clients.stream().mapToDouble(c -> c.valorTotal).sum();
-        System.out.println("Ingresos Totales: " + ingresosTotales);
+            switch (option) {
+                case "1":
+                    System.out.print("ID: ");
+                    String id = sc.nextLine();
+                    System.out.print("Name: ");
+                    String name = sc.nextLine();
+                    System.out.print("Phone: ");
+                    String phone = sc.nextLine();
+                    System.out.print("Client type (Particular/EPS/Prepaid): ");
+                    String clientType = sc.nextLine();
+                    System.out.print("Service type (Cleaning/Filling/Extraction/Diagnosis): ");
+                    String serviceType = sc.nextLine();
+                    System.out.print("Quantity: ");
+                    int quantity = Integer.parseInt(sc.nextLine());
+                    System.out.print("Priority (Normal/Urgent): ");
+                    String priority = sc.nextLine();
+                    System.out.print("Appointment date (yyyy-MM-dd): ");
+                    LocalDate date = LocalDate.parse(sc.nextLine());
+                    System.out.print("Service value: ");
+                    double value = Double.parseDouble(sc.nextLine());
 
-        long extracciones = clients.stream().filter(c -> c.tipoAtencion.equalsIgnoreCase("extracción")).count();
-        System.out.println("Número de clientes para extracción: " + extracciones);
+                    clients.add(new Client(id, name, phone, clientType,
+                            serviceType, quantity, priority, date, value));
+                    System.out.println("Client registered.");
+                    break;
 
-        // Ordenamiento
-        clients.sort((a, b) -> Double.compare(b.valorTotal, a.valorTotal));
-        System.out.println("\nLista ordenada (de mayor a menor valor):");
-        clients.forEach(System.out::println);
+                case "2":
+                    UrgencyStack stack = new UrgencyStack();
+                    stack.generateStack(clients);
+                    stack.showStack();
+                    break;
 
-        // Búsqueda
-        System.out.print("\nBuscar cliente por cédula: ");
-        String buscar = sc.nextLine();
-        Client encontrado = clients.stream()
-                .filter(c -> c.cedula.equals(buscar))
-                .findFirst().orElse(null);
+                case "3":
+                    AgendaQueue queue = new AgendaQueue();
+                    queue.generateQueue(clients);
+                    queue.attendQueue();
+                    break;
 
-        if (encontrado != null) {
-            System.out.println("Cliente encontrado: " + encontrado);
-        } else {
-            System.out.println("Cliente no encontrado.");
+                case "4":
+                    Storage.saveClients(clients);
+                    System.out.println("Data saved to clients.csv. Goodbye!");
+                    running = false;
+                    break;
+
+                default:
+                    System.out.println("Invalid option.");
+            }
         }
     }
 }
